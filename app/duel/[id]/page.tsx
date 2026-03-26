@@ -6,21 +6,22 @@ const supabase = createClient(
 )
 
 interface DuelPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function DuelPage({ params }: DuelPageProps) {
+  const { id } = await params
   const { data: duel } = await supabase
     .from('duels')
     .select('*, packages(name, image_url), challenger:users!challenger_id(username)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   const challengerName = duel?.challenger?.username ?? 'Noen'
   const packageName = duel?.packages?.name ?? 'en musikk-pakke'
   const packageImage = duel?.packages?.image_url
 
-  const deepLink = `trackster://duel/${params.id}`
+  const deepLink = `trackster://duel/${id}`
   const appStoreUrl = 'https://apps.apple.com/no/app/trackster'
 
   return (
